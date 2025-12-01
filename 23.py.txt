@@ -1,0 +1,63 @@
+Отличная идея! Это интерактивный и запоминающийся способ профориентации.
+
+Вот промты для нейросети (например, Midjourney, Stable Diffusion), которые будут генерировать изображение пользователя в стиле выбранной профессии. Они построены по принципу: **"Описание профессии + [ссылка на загруженное фото] + универсальные параметры стиля"**.
+
+### Общая структура промта:
+
+1.  **Профессия и контекст:** Описание, в какой роли и в какой обстановке должен быть изображен человек.
+2.  **Ссылка на изображение:** `[URL изображения пользователя]` (замените на реальную ссылку при использовании).
+3.  **Стилизация и параметры:** Единые для всех промтов команды, чтобы интегрировать лицо пользователя в сцену и задать качество.
+
+---
+
+### Промты для каждой специальности:
+
+**09.02.01 Компьютерные системы и комплексы** (Сборка и настройка "железа")
+**Промт:**
+`A technical expert in a modern server room or hardware lab, wearing a stylish lab coat or a polo shirt with a company logo, holding a motherboard or a server component. The scene is clean and high-tech, with blue accent lighting. In the style of a professional corporate photoshoot, sharp focus, photorealistic. [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+**09.01.03 Оператор информационных систем и ресурсов** (Работа с базами данных, офисная IT-среда)
+**Промт:**
+`A friendly and competent IT operator at a modern, multi-monitor workstation. Screens display data flow diagrams, server status dashboards, and code. The person is smiling, wearing a casual business outfit, in a bright, clean office. Corporate photography style, natural lighting, professional. [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+**09.02.06 Сетевое и системное администрирование** (Обслуживание сетей, "айтишник-сетевик")
+**Промт:**
+A focused network administrator, crawling under a desk or working in a server rack, tracing ethernet cables. Wearing a casual shirt with a tool belt. The environment is a bit more "hands-on" with visible network switches and cable management. Dramatic lighting, photorealistic, sense of action. [URL изображения пользователя] --style raw --ar 3:4 --iw 2
+
+**09.02.07 Информационные системы и программирование** (Классический программист/разработчик)
+**Промт:**
+`A skilled software developer writing code on a laptop in a creative, modern workspace with plants and a whiteboard full of algorithms in the background. The person has a thoughtful expression, wearing a hoodie or a t-shirt with a geeky print. Dynamic angle, shallow depth of field, cinematic lighting. [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+**09.02.13 Интеграция решений с применением технологий искусственного интеллекта** (Самый футуристичный образ)
+**Промт:**
+`A visionary AI specialist interacting with a large, holographic interface displaying neural networks and data streams. The person looks innovative and confident, in a sleek, futuristic environment with neon light accents. Sci-fi aesthetic, cyberpunk elements, high detail, photorealistic. [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+**11.02.16 Монтаж, техническое обслуживание и ремонт электронных приборов и устройств** (Электроника, пайка)
+**Промт:**
+`A meticulous electronics technician soldering a complex circuit board on a workbench. Wearing protective glasses and an apron, surrounded by oscilloscopes, multimeters, and electronic components. The style is a detailed, close-up shot, workshop lighting, hyper-realistic. [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+**10.02.05 Обеспечение информационной безопасности** (Этичный хакер, кибербезопасность)
+**Промт:**
+`A cybersecurity analyst in a dimly lit Security Operations Center (SOC), facing a wall of monitors showing lines of code, network maps, and threat detection alerts. The person has a serious, vigilant expression, wearing a dark, tactical-style jacket. Moody lighting, high contrast, cinematic style from a TV series like "Mr. Robot". [URL изображения пользователя] --style raw --ar 3:4 --iw 2`
+
+---
+
+### Как это работает технически:
+
+1.  **Пользователь проходит тест** на вашем сайте/в боте.
+2.  **Система определяет код специальности** (например, `09.02.07`).
+3.  **Пользователь загружает своё фото.**
+4.  **Ваш бэкенд** подставляет URL загруженного фото в соответствующий промт.
+5.  **Бэкенд отправляет запрос** к API нейросети (например, Stable Diffusion через Automatic1111 или Midjourney).
+6.  **Сгенерированное изображение** возвращается и показывается пользователю.
+
+### Важные примечания для реализации:
+
+*   **`[URL изображения пользователя]`**: Это плейсхолдер. Вам нужно будет загружать изображение на сервер, чтобы получить прямую ссылку на него.
+*   **`--style raw`**: Параметр в Midjourney для более точной передачи лиц.
+*   **`--iw 2`** (Image Weight): Сила влияния исходного изображения. Значение `2` (макс. в Midjourney v6) заставляет нейросеть сильнее ориентироваться на лицо пользователя.
+*   **`--ar 3:4`**: Соотношение сторон (портретное).
+*   **Качество исходного фото:** Для лучшего результата пользователь должен загружать четкое фото лица при хорошем освещении.
+*   **Модель нейросети:** Лучше всего для таких задач подходят модели, заточенные под работу с лицами (например, **Stable Diffusion** с моделями типа **Realistic Vision** или **DreamBooth**, обученными на портретах). Midjourney тоже отлично справляется, но может сильнее стилизовать.
+
+Этот подход создаст мощный эффект "примерки" профессии и надолго запомнится пользователю. Удачи в реализации
