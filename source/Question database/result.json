@@ -1,0 +1,25 @@
+{
+  "result1": {
+    "spec_code": "09.02.2020",
+    "label": "some prof",
+    "text": "desc ur prof",
+    "prompt": "insert ur prompt",
+    "weight_code": {
+      "mn": 0,
+      "mx": 5
+    },
+    "code": ["a", "b"]
+  },
+
+  "result2": {
+    "spec_code": "09.01.2011",
+    "label": "some prof",
+    "text": "desc ur prof",
+    "prompt": "insert ur prompt",
+    "weight_code": {
+      "mn": 3,
+      "mx": 7
+    },
+    "code": ["a", "a"]
+  }
+}
