@@ -1,4 +1,10 @@
 from Buttons import *
+import cv2
+import os
+from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import ttk
+import time
 
 
 #************************
@@ -95,9 +101,9 @@ class QuestionPage(tk.Frame):
             btn.pack(pady=10)
             self.option_buttons.append(btn)
 
-#************************
+#***********************
 #*    Итоговое окно    *
-#************************
+#***********************
 class ResultPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg=controller.bg_color)
@@ -148,7 +154,7 @@ class ResultPage(tk.Frame):
         buttons_container.pack(pady=(0, 40), padx=50)
 
         upload_btn = RoundedButton(buttons_container, text="Загрузить фото для генерации",
-                                   command=lambda: controller.show_frame("UploadPhotoPage"),
+                                   command=lambda: controller.show_frame("CameraPage"),
                                    width=800, height=70,  # Уменьшил ширину
                                    bg_color=controller.primary_color,
                                    hover_color=controller.second_color,
@@ -169,3 +175,132 @@ class ResultPage(tk.Frame):
     def update_result(self):
         result_text = self.controller.get_result_text()
         self.result_label.config(text=result_text)
+
+
+# *******************
+# *    Фото окно    *
+# *******************
+class CameraPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=controller.bg_color)
+
+        self.controller = controller
+        self.cap = None
+        self.current_cam_index = 0
+        self.video_label = None
+        self.running = False
+
+        if controller.logo_small is not None:
+            mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
+            mini_logo.place(x=40, y=40, anchor="nw")
+
+        if controller.logo_big is not None:
+            big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
+            big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
+
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        title = tk.Label(self, text="Сделайте фото", font=controller.heading_font,
+                         bg=controller.bg_color, fg=controller.primary_color)
+        title.pack(pady=20)
+
+        # Выбор камеры
+        cam_frame = tk.Frame(self, bg=controller.bg_color)
+        cam_frame.pack(pady=10)
+
+        tk.Label(cam_frame, text="Камера:", font=controller.main_font,
+                 bg=controller.bg_color).pack(side="left", padx=5)
+
+        self.cam_selector = ttk.Combobox(cam_frame, font=controller.main_font, width=5)
+        self.cam_selector.pack(side="left")
+        self.cam_selector.bind("<<ComboboxSelected>>", self.change_camera)
+
+        # Видео
+        self.video_label = tk.Label(self, bg="black")
+        self.video_label.pack(pady=20)
+
+        # Кнопки
+        btn_frame = tk.Frame(self, bg=controller.bg_color)
+        btn_frame.pack(pady=20)
+
+        tk.Button(btn_frame, text="Сделать снимок",
+                  font=controller.button_font,
+                  bg=controller.primary_color, fg="white",
+                  command=self.take_photo).pack(side="left", padx=10)
+
+        tk.Button(btn_frame, text="Назад",
+                  font=controller.button_font,
+                  command=self.go_back).pack(side="left", padx=10)
+
+        self.find_cameras()
+
+    # Поиск доступных камер
+    def find_cameras(self):
+        cams = []
+        for i in range(5):
+            cap = cv2.VideoCapture(i)
+            if cap.read()[0]:
+                cams.append(str(i))
+            cap.release()
+
+        if not cams:
+            cams = ["0"]
+
+        self.cam_selector["values"] = cams
+        self.cam_selector.current(0)
+        self.current_cam_index = int(cams[0])
+
+    def change_camera(self, event=None):
+        self.current_cam_index = int(self.cam_selector.get())
+        self.stop_camera()
+        self.start_camera()
+
+    def start_camera(self):
+        self.cap = cv2.VideoCapture(self.current_cam_index)
+        self.running = True
+        self.update_frame()
+
+    def stop_camera(self):
+        self.running = False
+        if self.cap:
+            self.cap.release()
+
+    def update_frame(self):
+        if not self.running:
+            return
+
+        ret, frame = self.cap.read()
+        if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+            img = img.resize((640, 480))
+            imgtk = ImageTk.PhotoImage(image=img)
+            self.video_label.imgtk = imgtk
+            self.video_label.configure(image=imgtk)
+
+        self.after(20, self.update_frame)
+
+    def take_photo(self):
+        if not self.cap:
+            return
+
+        ret, frame = self.cap.read()
+        if ret:
+            os.makedirs("source/user_photos", exist_ok=True)
+            filename = f"source/user_photos/user_{int(time.time())}.jpg"
+            cv2.imwrite(filename, frame)
+
+            # сохраняем путь в контроллер
+            self.controller.loaded_photo_path = filename
+
+        self.stop_camera()
+        self.controller.show_frame("UploadPhotoPage")
+
+    def go_back(self):
+        self.stop_camera()
+        self.controller.show_frame("ResultPage")
+
+    def tkraise(self, *args, **kwargs):
+        super().tkraise(*args, **kwargs)
+        self.start_camera()

@@ -4,7 +4,6 @@ from Logger import write_error, write_warning
 from tkinter.messagebox import showerror
 from Frames import *
 from BackEnd import *
-
 #******* Глобальные переменные (пути к файлам) *******
 
 path_mini_logo = 'source/image/system/Logo+name.png'
@@ -68,7 +67,7 @@ class QuizApp(tk.Tk):
         self.container.columnconfigure(0, weight=1)                # Установка весов для каждого столбца (чтобы они занимали одинаковое пространство)
 
         self.frames = {}                                                 # Список всех контейнеров
-        for F in (StartPage, QuestionPage, ResultPage, UploadPhotoPage):
+        for F in (StartPage, QuestionPage, ResultPage, CameraPage, UploadPhotoPage):
             frame = F(parent=self.container, controller=self)            # Создания класса с установленными выше параметрами
             self.frames[F.__name__] = frame                              # Создание связи "Имя: класс" для словаря
             frame.grid(row=0, column=0, sticky="nsew")                   # Размещение контейнера в окне
@@ -163,7 +162,7 @@ class QuizApp(tk.Tk):
         if self.current_index < len(self.questions):                            #Если индекс меньше количества вопросов, обновляем тест
             self.update_question_page()
         else:
-            self.calculate_result()                                             #В противном случае выводит итоговую страницу
+            self.calculate_result()     #В противном случае выводит итоговую страницу
             self.frames["ResultPage"].update_result()
             self.show_frame("ResultPage")
 
@@ -210,7 +209,6 @@ class QuizApp(tk.Tk):
                 prompt += f" [Изображение пользователя: {self.loaded_photo_path}]"
             return prompt
         return ""
-
 
     # *********************************
     # *   Функция перезапуска теста   *
