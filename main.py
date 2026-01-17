@@ -1,7 +1,4 @@
 import json
-
-from Logger import write_error, write_warning
-from tkinter.messagebox import showerror
 from Frames import *
 from BackEnd import *
 #******* Глобальные переменные (пути к файлам) *******

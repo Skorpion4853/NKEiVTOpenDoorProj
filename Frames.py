@@ -5,8 +5,9 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk
 import time
-
-
+from generator import generate_image
+from Logger import write_error
+from tkinter.messagebox import showerror
 #************************
 #*    Стартовое окно    *
 #************************
@@ -118,30 +119,17 @@ class ResultPage(tk.Frame):
             big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
 
         # Основной контейнер с прокруткой для всего контента
-        main_container = tk.Frame(self, bg=controller.bg_color)
-        main_container.place(relx=0.5, rely=0.5, anchor="center", width=1000, height=800)
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Canvas для прокрутки
-        canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
-        scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg=controller.bg_color)
-
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        title = tk.Label(scrollable_frame, text="Тест завершен!",
+        title = tk.Label(self, text="Тест завершен!",
                          font=controller.heading_font,
                          bg=controller.bg_color, fg=controller.primary_color,
                          anchor="center", justify="center")
-        title.pack(pady=(0, 30))
+        title.pack(pady=(100, 30), padx=50)
 
         # Текст результата
-        self.result_label = tk.Label(scrollable_frame,
+        self.result_label = tk.Label(self,
                                      text="",
                                      font=controller.main_font,
                                      bg=controller.bg_color,
@@ -150,10 +138,10 @@ class ResultPage(tk.Frame):
         self.result_label.pack(pady=(0, 40), padx=50)
 
         # Кнопки расположены вертикально с достаточным пространством
-        buttons_container = tk.Frame(scrollable_frame, bg=controller.bg_color)
+        buttons_container = tk.Frame(self, bg=controller.bg_color)
         buttons_container.pack(pady=(0, 40), padx=50)
 
-        upload_btn = RoundedButton(buttons_container, text="Загрузить фото для генерации",
+        upload_btn = RoundedButton(buttons_container, text="Сделать фото для генерации",
                                    command=lambda: controller.show_frame("CameraPage"),
                                    width=800, height=70,  # Уменьшил ширину
                                    bg_color=controller.primary_color,
@@ -168,9 +156,6 @@ class ResultPage(tk.Frame):
                                     hover_color=controller.primary_color,
                                     font=controller.button_font)
         restart_btn.pack(pady=20)
-
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
     def update_result(self):
         result_text = self.controller.get_result_text()
@@ -280,6 +265,26 @@ class CameraPage(tk.Frame):
             self.video_label.configure(image=imgtk)
 
         self.after(20, self.update_frame)
+
+    def make_generation(self):
+        controller = self.controller
+
+        if not controller.loaded_photo_path:
+            write_error("PhotoNotFoundError", "Фото не найдено, для начало сделайте фото!")
+            showerror("Нет фото", "Сначала загрузите или сделайте фото")
+            return
+
+        prompt = controller.get_result_prompt()
+
+        out_path = generate_image(controller.loaded_photo_path, prompt)
+
+        # покажем результат
+        img = Image.open(out_path)
+        img = img.resize((512, 512))
+        imgtk = ImageTk.PhotoImage(img)
+
+        self.generated_label.configure(image=imgtk)
+        self.generated_label.image = imgtk
 
     def take_photo(self):
         if not self.cap:
