@@ -4,7 +4,17 @@ from PIL import Image
 import os
 import time
 
-MODEL_NAME = "runwayml/stable-diffusion-v1-5"
+from huggingface_hub import snapshot_download
+
+MODEL_PATH = "models/sd15"
+
+if not os.path.exists(MODEL_PATH):
+    snapshot_download(
+        repo_id="runwayml/stable-diffusion-v1-5",
+        local_dir=MODEL_PATH,
+        local_dir_use_symlinks=False
+    )
+
 
 pipe = None
 
@@ -12,7 +22,7 @@ def load_model():
     global pipe
     if pipe is None:
         pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-            MODEL_NAME,
+            MODEL_PATH,
             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
             safety_checker=None
         )
