@@ -1,9 +1,7 @@
 import json
-
-from Logger import write_error, write_warning
-from tkinter.messagebox import showerror
 from Frames import *
 from BackEnd import *
+import tkinter.font as tkfont
 #******* Глобальные переменные (пути к файлам) *******
 
 path_mini_logo = 'source/image/system/Logo+name.png'
@@ -30,10 +28,10 @@ class QuizApp(tk.Tk):
 
         #******* Установка глобальных шрифтов *******
 
-        self.heading_font = ("Arial", 40, "bold")                       # Шрифт для заголовков
-        self.button_font = ("Arial", 30, "bold")                        # Шрифт для клавиш
-        self.main_font = ("Arial", 24)                                  # Шрифт для основного текста
-        self.small_font = ("Arial", 16)                                 # Шрифт для маленького текста
+        self.heading_font = tkfont.Font(family="Tektur SemiBold", size=40)                       # Шрифт для заголовков
+        self.button_font = tkfont.Font(family="TT Travels", size=30)                       # Шрифт для клавиш
+        self.main_font = tkfont.Font(family="Tektur Regular", size=24)                                # Шрифт для основного текста
+        self.small_font = tkfont.Font(family="TT Travels", size=16)                                # Шрифт для маленького текста
 
 
         #******* Установка глобальных цветов *******
@@ -51,6 +49,7 @@ class QuizApp(tk.Tk):
         self.user_photo = None                                          # Путь к фото пользователя
         self.loaded_photo_path = None                                   # Путь к загруженному фото
         self.load_images()                                              # Вызов функции что открывает изображения и сохраняет их в атрибуты
+        self.generated_photo = None
 
 
         # ******* Пути к ответам и вопросам *******
@@ -79,9 +78,9 @@ class QuizApp(tk.Tk):
         self.current_index = 0
         self.answers_score = 0
         self.code = []
-        self.questions = json.load(open(self.questions_path))
+        self.questions = json.load(open(self.questions_path, encoding='utf-8'))
         self.question_names = list(self.questions.keys())
-        self.results = json.load(open(self.result_path))
+        self.results = json.load(open(self.result_path, encoding='utf-8'))
         self.result_specialty = None
 
 
@@ -177,7 +176,7 @@ class QuizApp(tk.Tk):
             if self.results[i]["code"] == self.code:
                 top_specialties.append(self.results[i])
                 flag = False
-            elif self.answers_score in range(self.results[i]["weight_code"]["mn"], self.results[i]["weight_code"]["mx"]):
+            elif self.answers_score in range(self.results[i]["weight_code"]["mn"], self.results[i]["weight_code"]["mx"]+1):
                 top_specialties.append(self.results[i])
                 flag = False
         if flag:
@@ -219,6 +218,7 @@ class QuizApp(tk.Tk):
         self.result_specialty = None
         self.loaded_photo_path = None
         self.user_photo = None
+        self.generated_photo = None
         self.show_frame("StartPage")
 
 

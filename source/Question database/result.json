@@ -1,25 +1,25 @@
 {
   "result1": {
     "spec_code": "09.02.2020",
-    "label": "some prof",
-    "text": "desc ur prof",
-    "prompt": "insert ur prompt",
+    "label": "Повар",
+    "text": "это искусство приготовления пищи, включающее подготовку продуктов, создание блюд по рецептам и творческое оформление,с соблюдением санитарных норм и стандартов качества в ресторанах, кафе и других заведениях. Повар отвечает за весь цикл: от закупки продуктов и разработки меню до контроля вкуса и внешнего вида готовых блюд. ",
+    "prompt": "photo of the exact same person, identical face, perfect likeness, wearing a professional chef uniform, white chef jacket, black apron, standing in an authentic Asian restaurant kitchen, stainless steel workspace, warm ambient lighting, realistic photography, preserved facial features, true identity, 85mm portrait lens, shallow depth of field, ultra-detailed, photorealistic, 4k",
     "weight_code": {
-      "mn": 0,
-      "mx": 5
+      "mn": 1,
+      "mx": 2
     },
-    "code": ["a", "b"]
+    "code": ["a", "a"]
   },
 
   "result2": {
-    "spec_code": "09.01.2011",
-    "label": "some prof",
-    "text": "desc ur prof",
-    "prompt": "insert ur prompt",
+    "spec_code": "09.07.2005",
+    "label": "Программист",
+    "text": "это специалист, который пишет, тестирует и поддерживает программный код для создания программ, приложений, веб-сайтов и операционных систем, используя различные языки программирования для решения задач и автоматизации процессов; его работа включает разработку алгоритмов, отладку, настройку и документирование ПО. ",
+    "prompt": "Представь это человека в чёрной худи с надписью 'This is Fine' в руках с кружкой кофе, на фоне серверной комнаты, в реалистичном стиле с сохранением черт лица",
     "weight_code": {
-      "mn": 3,
-      "mx": 7
+      "mn": -1,
+      "mx": 0
     },
-    "code": ["a", "a"]
+    "code": ["b", "c"]
   }
 }
