@@ -8,6 +8,8 @@ import time
 from generator import generate_image
 from Logger import write_error
 from tkinter.messagebox import showerror
+
+''
 #************************
 #*    Стартовое окно    *
 #************************
@@ -118,32 +120,50 @@ class ResultPage(tk.Frame):
             big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
             big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
 
-        # Основной контейнер с прокруткой для всего контента
-        center_frame = tk.Frame(self, bg=controller.bg_color)
-        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+        # ===== Основной контейнер как в BackEnd =====
+        main_container = tk.Frame(self, bg=controller.bg_color)
+        main_container.place(relx=0.51, rely=0.5, anchor="center", width=1000, height=800)
 
-        title = tk.Label(self, text="Тест завершен!",
+        canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
+        scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=controller.bg_color)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # ===== Контент =====
+
+        title = tk.Label(scrollable_frame, text="Тест завершен!",
                          font=controller.heading_font,
                          bg=controller.bg_color, fg=controller.primary_color,
                          anchor="center", justify="center")
-        title.pack(pady=(100, 30), padx=50)
+        title.pack(pady=(20, 30))
+
+        # Фото результата
+        self.photo_label = tk.Label(scrollable_frame, bg=controller.bg_color)
+        self.photo_label.pack(pady=(0, 30))
 
         # Текст результата
-        self.result_label = tk.Label(self,
+        self.result_label = tk.Label(scrollable_frame,
                                      text="",
                                      font=controller.main_font,
                                      bg=controller.bg_color,
                                      anchor="center", justify="center",
-                                     wraplength=900)  # Увеличил ширину для текста
+                                     wraplength=900)
         self.result_label.pack(pady=(0, 40), padx=50)
 
-        # Кнопки расположены вертикально с достаточным пространством
-        buttons_container = tk.Frame(self, bg=controller.bg_color)
-        buttons_container.pack(pady=(0, 40), padx=50)
+        # Кнопки
+        buttons_container = tk.Frame(scrollable_frame, bg=controller.bg_color)
+        buttons_container.pack(pady=(0, 40))
 
-        upload_btn = RoundedButton(buttons_container, text="Сделать фото для генерации",
+        upload_btn = RoundedButton(buttons_container, text="Сгенерировать изображение",
                                    command=lambda: controller.show_frame("CameraPage"),
-                                   width=800, height=70,  # Уменьшил ширину
+                                   width=800, height=70,
                                    bg_color=controller.primary_color,
                                    hover_color=controller.second_color,
                                    font=controller.button_font)
@@ -151,15 +171,30 @@ class ResultPage(tk.Frame):
 
         restart_btn = RoundedButton(buttons_container, text="Пройти тест ещё раз",
                                     command=controller.restart_quiz,
-                                    width=800, height=70,  # Уменьшил ширину
-                                    bg_color=controller.second_color,
-                                    hover_color=controller.primary_color,
+                                    width=800, height=70,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
                                     font=controller.button_font)
         restart_btn.pack(pady=20)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
     def update_result(self):
         result_text = self.controller.get_result_text()
         self.result_label.config(text=result_text)
+
+        # Если есть сгенерированное фото — показать
+        if getattr(self.controller, "generated_photo", None):
+            try:
+                img = Image.open(self.controller.generated_photo)
+                img = img.resize((400, 400))
+                imgtk = ImageTk.PhotoImage(img)
+
+                self.photo_label.configure(image=imgtk)
+                self.photo_label.image = imgtk
+            except Exception as e:
+                write_error("ResultImageError", str(e))
 
 
 # *******************
@@ -209,14 +244,23 @@ class CameraPage(tk.Frame):
         btn_frame = tk.Frame(self, bg=controller.bg_color)
         btn_frame.pack(pady=20)
 
-        tk.Button(btn_frame, text="Сделать снимок",
-                  font=controller.button_font,
-                  bg=controller.primary_color, fg="white",
-                  command=self.take_photo).pack(side="left", padx=10)
 
-        tk.Button(btn_frame, text="Назад",
-                  font=controller.button_font,
-                  command=self.go_back).pack(side="left", padx=10)
+        screenshot_btn = RoundedButton(btn_frame, text="Сгенерировать изображение",
+                                 command=self.take_photo,
+                                 width=800, height=70,
+                                 bg_color=controller.primary_color,
+                                 hover_color=controller.second_color,
+                                 font=controller.button_font)
+        screenshot_btn.pack(pady=20)
+
+
+        back_btn = RoundedButton(btn_frame, text="Назад",
+                                    command=self.go_back,
+                                    width=800, height=70,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
+                                    font=controller.button_font)
+        back_btn.pack(pady=20)
 
         self.find_cameras()
 
@@ -277,14 +321,7 @@ class CameraPage(tk.Frame):
         prompt = controller.get_result_prompt()
 
         out_path = generate_image(controller.loaded_photo_path, prompt)
-
-        # покажем результат
-        img = Image.open(out_path)
-        img = img.resize((512, 512))
-        imgtk = ImageTk.PhotoImage(img)
-
-        self.generated_label.configure(image=imgtk)
-        self.generated_label.image = imgtk
+        controller.generated_photo = out_path   # сохраняем путь
 
     def take_photo(self):
         if not self.cap:
@@ -300,7 +337,9 @@ class CameraPage(tk.Frame):
             self.controller.loaded_photo_path = filename
 
         self.stop_camera()
-        self.controller.show_frame("UploadPhotoPage")
+        self.make_generation()
+        self.controller.frames["ResultPage"].update_result()
+        self.controller.show_frame("ResultPage")
 
     def go_back(self):
         self.stop_camera()

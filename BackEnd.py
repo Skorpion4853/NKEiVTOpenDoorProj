@@ -1,5 +1,8 @@
 from Buttons import *
 from tkinter import filedialog, messagebox
+from generator import generate_image
+from Logger import write_error
+from tkinter.messagebox import showerror
 
 class UploadPhotoPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -135,6 +138,7 @@ class UploadPhotoPage(tk.Frame):
                 self.update_prompt()
             except Exception as e:
                 messagebox.showerror("Ошибка", f"Не удалось загрузить фото: {e}")
+                write_error(e, "Не удалось загрузить фото")
 
     def update_prompt(self):
         prompt = self.controller.get_result_prompt()
@@ -144,26 +148,25 @@ class UploadPhotoPage(tk.Frame):
             self.prompt_text.insert(1.0, prompt)
             self.prompt_text.config(state="disabled")
 
+    def make_generation(self):
+        controller = self.controller
+
+        if not controller.loaded_photo_path:
+            write_error("PhotoNotFoundError", "Фото не найдено, для начало сделайте фото!")
+            showerror("Нет фото", "Сначала загрузите или сделайте фото")
+            return
+
+        prompt = controller.get_result_prompt()
+
+        out_path = generate_image(controller.loaded_photo_path, prompt)
+        controller.generated_photo = out_path  # сохраняем путь
+        self.controller.frames["ResultPage"].update_result()
+        self.controller.show_frame("ResultPage")
+
     def generate_image(self):
         if not self.controller.loaded_photo_path:
             messagebox.showwarning("Внимание", "Сначала загрузите фото!")
             return
 
         prompt = self.controller.get_result_prompt()
-        if prompt:
-            # Сохраняем промпт в файл
-            try:
-                with open("generated_prompt.txt", "w", encoding="utf-8") as f:
-                    f.write(prompt)
-
-                messagebox.showinfo("Готово",
-                                    f"Промпт сохранен в файл 'generated_prompt.txt'!\n\n"
-                                    f"Для генерации изображения используйте этот промпт в AI-сервисах:\n"
-                                    f"1. Midjourney\n"
-                                    f"2. Stable Diffusion\n"
-                                    f"3. DALL-E\n\n"
-                                    f"Загрузите ваше фото и вставьте промпт.")
-            except Exception as e:
-                messagebox.showerror("Ошибка", f"Не удалось сохранить промпт: {e}")
-        else:
-            messagebox.showerror("Ошибка", "Не удалось сгенерировать промпт")
+        self.make_generation()

@@ -1,26 +1,22 @@
 {
   "0": {
-    "label": "question 1",
-    "text": "some question",
+    "text": "Вам нравится готовить?",
     "options": [
-      "some text1",
-      "some text2",
-      "some text3",
-      "some text4"
+      "Да",
+      "Нет"
     ],
-    "codes": ["a", "b", "c", "d"],
-    "weights": [1, 0, 2, 3]
+    "codes": ["a", "b"],
+    "weights": [1, 0]
   },
 
   "1": {
-    "label": "question 1",
-    "text": "some question",
+    "text": "Сколько вы сидите за компом в день?",
     "options": [
-      "some text1",
-      "some text2",
-      "some text3"
+      "до 3 часов",
+      "от 3 до 5 часов",
+      "более 5 часов"
     ],
     "codes": ["a", "b", "c"],
-    "weights": [1, 0, 2]
+    "weights": [1, 0, -1]
   }
 }
