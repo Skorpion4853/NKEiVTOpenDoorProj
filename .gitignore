@@ -1,0 +1,12 @@
+
+# Ignore all logs files
+logs
+
+#Ignore all users images
+*.jpg
+
+#Ignore conf file
+conf.py
+
+#Ignore model
+models
