@@ -4,6 +4,7 @@ from PIL import Image
 import os
 import time
 
+os.makedirs("models", exist_ok=True)
 MODEL_PATH = "models/flux2-klein-4b"
 
 if not os.path.exists(MODEL_PATH):
@@ -13,7 +14,7 @@ if not os.path.exists(MODEL_PATH):
         local_dir_use_symlinks=False
     )
 
-device = "cuda"
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 pipe = None
 
 
@@ -26,7 +27,7 @@ def load_model(mode=3):
             local_files_only=True
         )
         if mode == 1:
-            pipe.to("cuda")
+            pipe.to(device)
         elif mode == 2:
             pipe.enable_model_cpu_offload()
             pipe.enable_vae_slicing()
@@ -39,7 +40,6 @@ def load_model(mode=3):
 def generate_image(init_image_path, prompt):
     pipe = load_model()
     init_image = Image.open(init_image_path).convert("RGB")
-
     result = pipe(
         prompt=prompt,
         image=init_image,
@@ -49,9 +49,8 @@ def generate_image(init_image_path, prompt):
         num_inference_steps=4,
         generator=torch.Generator(device=device).manual_seed(0)
     ).images[0]
-
-    os.makedirs("source/generated", exist_ok=True)
-    out_path = f"source/generated/gen_{int(time.time())}.png"
+    os.makedirs("source/image/generated", exist_ok=True)
+    out_path = f"source/image/generated/gen_{int(time.time())}.png"
     result.save(out_path)
 
     return out_path
