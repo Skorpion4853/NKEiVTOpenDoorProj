@@ -1,6 +1,5 @@
 import json
 from Frames import *
-from BackEnd import *
 import tkinter.font as tkfont
 #******* Глобальные переменные (пути к файлам) *******
 
@@ -66,7 +65,7 @@ class QuizApp(tk.Tk):
         self.container.columnconfigure(0, weight=1)                # Установка весов для каждого столбца (чтобы они занимали одинаковое пространство)
 
         self.frames = {}                                                 # Список всех контейнеров
-        for F in (StartPage, QuestionPage, ResultPage, CameraPage, UploadPhotoPage):
+        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage):
             frame = F(parent=self.container, controller=self)            # Создания класса с установленными выше параметрами
             self.frames[F.__name__] = frame                              # Создание связи "Имя: класс" для словаря
             frame.grid(row=0, column=0, sticky="nsew")                   # Размещение контейнера в окне

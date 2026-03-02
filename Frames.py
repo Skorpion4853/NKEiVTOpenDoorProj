@@ -9,7 +9,7 @@ from generator import generate_image
 from Logger import write_error
 from tkinter.messagebox import showerror
 
-''
+
 #************************
 #*    Стартовое окно    *
 #************************
@@ -122,7 +122,7 @@ class ResultPage(tk.Frame):
 
         # ===== Основной контейнер как в BackEnd =====
         main_container = tk.Frame(self, bg=controller.bg_color)
-        main_container.place(relx=0.51, rely=0.5, anchor="center", width=1000, height=800)
+        main_container.place(relx=0.56, rely=0.5, anchor="center", width=1000, height=800)
 
         canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
         scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
@@ -168,6 +168,14 @@ class ResultPage(tk.Frame):
                                    hover_color=controller.second_color,
                                    font=controller.button_font)
         upload_btn.pack(pady=20)
+
+        send_btn = RoundedButton(buttons_container, text="Отправить фото",
+                                    command=lambda: controller.show_frame("SendPage"),
+                                    width=800, height=70,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
+                                    font=controller.button_font)
+        send_btn.pack(pady=20)
 
         restart_btn = RoundedButton(buttons_container, text="Пройти тест ещё раз",
                                     command=controller.restart_quiz,
@@ -218,15 +226,24 @@ class CameraPage(tk.Frame):
             big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
             big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
 
-        center_frame = tk.Frame(self, bg=controller.bg_color)
-        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+        main_container = tk.Frame(self, bg=controller.bg_color)
+        main_container.place(relx=0.6, rely=0.5, anchor="center", width=1000, height=800)
 
-        title = tk.Label(self, text="Сделайте фото", font=controller.heading_font,
+        canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
+        scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=controller.bg_color)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        title = tk.Label(scrollable_frame, text="Сделайте фото", font=controller.heading_font,
                          bg=controller.bg_color, fg=controller.primary_color)
         title.pack(pady=20)
 
         # Выбор камеры
-        cam_frame = tk.Frame(self, bg=controller.bg_color)
+        cam_frame = tk.Frame(scrollable_frame, bg=controller.bg_color)
         cam_frame.pack(pady=10)
 
         tk.Label(cam_frame, text="Камера:", font=controller.main_font,
@@ -237,11 +254,11 @@ class CameraPage(tk.Frame):
         self.cam_selector.bind("<<ComboboxSelected>>", self.change_camera)
 
         # Видео
-        self.video_label = tk.Label(self, bg="black")
+        self.video_label = tk.Label(scrollable_frame, bg="black")
         self.video_label.pack(pady=20)
 
         # Кнопки
-        btn_frame = tk.Frame(self, bg=controller.bg_color)
+        btn_frame = tk.Frame(scrollable_frame, bg=controller.bg_color)
         btn_frame.pack(pady=20)
 
 
@@ -263,6 +280,11 @@ class CameraPage(tk.Frame):
         back_btn.pack(pady=20)
 
         self.find_cameras()
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
     # Поиск доступных камер
     def find_cameras(self):
@@ -348,3 +370,63 @@ class CameraPage(tk.Frame):
     def tkraise(self, *args, **kwargs):
         super().tkraise(*args, **kwargs)
         self.start_camera()
+
+
+# *********************************
+# *    Окно с выбором отправки    *
+# *********************************
+class SendPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=controller.bg_color)
+        self.controller = controller
+        self.descPage = "Каким способом хотите получить своё фото?"
+
+        if controller.logo_small is not None:
+            mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
+            mini_logo.place(x=40, y=40, anchor="nw")
+
+        if controller.logo_big is not None:
+            big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
+            big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
+
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        mini_logo.lift()
+        big_logo.lift()
+
+        title = tk.Label(center_frame, text=self.descPage,
+                         font=controller.heading_font,
+                         bg=controller.bg_color, fg=controller.primary_color,
+                         anchor="center", justify="center")
+        title.pack(pady=(0, 40))
+
+        qr_btn = RoundedButton(center_frame, text="QR-кодом",
+                                  command=lambda: controller.show_frame(""),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        qr_btn.pack(pady=(0, 20))
+        tg_btn = RoundedButton(center_frame, text="В телеграмм",
+                                  command=lambda: controller.show_frame(""),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        tg_btn.pack(pady=(0, 20))
+        email_btn = RoundedButton(center_frame, text="На почту",
+                                  command=lambda: controller.show_frame(""),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        email_btn.pack(pady=(0, 20))
+        back_btn = RoundedButton(center_frame, text="Назад",
+                                  command=lambda: controller.show_frame("ResultPage"),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        back_btn.pack(pady=(0, 20))
+

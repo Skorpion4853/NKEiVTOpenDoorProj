@@ -1,6 +1,7 @@
+.gitignore
 
-# Ignore all logs files
-logs
+# Ignore all .log files
+*.log
 
 #Ignore all users images
 *.jpg

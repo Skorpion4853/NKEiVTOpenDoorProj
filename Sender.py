@@ -1,9 +1,43 @@
 import requests
 import qrcode
-from conf import BOT_TOKEN, MY_USER_ID
+from conf import *
 from time import time
 from Logger import write_error, write_info
-from os import makedirs
+from os import makedirs, path
+import smtplib
+from email.message import EmailMessage
+import mimetypes
+
+def send_photo_email(recipient_email, image_path):
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = "Ваше сгенерированное фото"                                                          #Тема сообщения
+        msg["From"] = sender_email                                                                            #Почта отправителя
+        msg["To"] = recipient_email                                                                           #Почта получателя
+        msg.set_content("Вот ваше сгенерированное фото, спасибо что выбрали нас! \nС уважением nke.team.")    #Текст сообщения
+
+        mime_type, _ = mimetypes.guess_type(image_path)
+        maintype, subtype = mime_type.split("/")
+
+        #Открываем изображение и прикрепляем его
+        with open(image_path, "rb") as f:
+            msg.add_attachment(
+                f.read(),
+                maintype=maintype,
+                subtype=subtype,
+                filename=path.basename(image_path),
+            )
+
+        #Сама отправка
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as smtp:
+            smtp.login(sender_email, sender_password)
+            smtp.send_message(msg)
+
+        write_info("200 ImageDelivered", f"Image {image_path} has been sent to {recipient_email}")
+    except smtplib.SMTPAuthenticationError as r:
+        write_error("Authentication Error", r)
+    except TimeoutError:
+        write_error("Timeout Error", "Unknow error, it's may be cuz ur email incorrect, or our mail didn't work")
 
 
 def check_request(image_path, CHAT_ID, response):
@@ -39,47 +73,51 @@ def check_internet(host="8.8.8.8", port=53, timeout=3):
         return False
 
 
-def send_img_to_user(image_path, CHAT_ID = MY_USER_ID, mode = 0):
+def send_img_to_user(image_path, CHAT_ID=MY_USER_ID, mode=0, email=sender_email):
     """
     mode can take 3 args
     0: only qr
     1: only tg
     2: tg + or
+    3: Почта
     """
     if check_internet():
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+        if mode != 3:
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
-        if mode != 0:
-            updates = requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
-            ).json()
-            i = len(updates["result"])
-            CHAT_ID = updates["result"][i-1]['message']['chat']['id']
+            if mode != 0:
+                updates = requests.get(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
+                ).json()
+                i = len(updates["result"])
+                CHAT_ID = updates["result"][i-1]['message']['chat']['id']
 
-        with open(image_path, "rb") as f:
-            response = requests.post(
-                url,
-                data={"chat_id": CHAT_ID},
-                files={"photo": f}
-            )
-        corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
-        if mode == 0 or mode == 2:
-            data = response.json()
-            file_id = data["result"]["photo"][-1]["file_id"]
+            with open(image_path, "rb") as f:
+                response = requests.post(
+                    url,
+                    data={"chat_id": CHAT_ID},
+                    files={"photo": f}
+                )
+            corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
+            if mode == 0 or mode == 2:
+                data = response.json()
+                file_id = data["result"]["photo"][-1]["file_id"]
 
-            # получаем file_path
-            r = requests.get(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
-                params={"file_id": file_id}
-            ).json()
+                # получаем file_path
+                r = requests.get(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
+                    params={"file_id": file_id}
+                ).json()
 
-            file_path = r["result"]["file_path"]
-            file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+                file_path = r["result"]["file_path"]
+                file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
 
-            img = qrcode.make(file_url)
-            makedirs("source/qrcodes", exist_ok=True)
-            file = f"source/qrcodes/qr_{int(time())}.jpg"
-            img.save(file)
-            write_info("QR Successfully Generated", f"QR {file[14:]} has been save to {file}")
+                img = qrcode.make(file_url)
+                makedirs("source/qrcodes", exist_ok=True)
+                file = f"source/qrcodes/qr_{int(time())}.jpg"
+                img.save(file)
+                write_info("QR Successfully Generated", f"QR {file[14:]} has been save to {file}")
+        else:
+            send_photo_email(email, image_path)
     else:
         write_error("ConnectionError", "Device haven't internet connection")
