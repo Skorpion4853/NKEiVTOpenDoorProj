@@ -8,7 +8,7 @@ import time
 from generator import generate_image
 from Logger import write_error
 from tkinter.messagebox import showerror
-
+from Sender import send_img_to_user
 
 #************************
 #*    Стартовое окно    *
@@ -402,7 +402,7 @@ class SendPage(tk.Frame):
         title.pack(pady=(0, 40))
 
         qr_btn = RoundedButton(center_frame, text="QR-кодом",
-                                  command=lambda: controller.show_frame(""),
+                                  command=lambda: controller.show_frame("QRPage"),
                                   width=400, height=80,
                                   bg_color=controller.primary_color,
                                   hover_color=controller.second_color,
@@ -430,3 +430,103 @@ class SendPage(tk.Frame):
                                   font=controller.button_font)
         back_btn.pack(pady=(0, 20))
 
+# ***********************************
+# *    Окно c отправкой через QR    *
+# ***********************************
+class QRPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=controller.bg_color)
+        self.controller = controller
+        self.descPage = "От сканируйте QR чтобы получить фото"
+
+        if controller.logo_small is not None:
+            mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
+            mini_logo.place(x=40, y=40, anchor="nw")
+
+        if controller.logo_big is not None:
+            big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
+            big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
+
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        mini_logo.lift()
+
+        result = send_img_to_user("source/user_photos/1564586532121120879.jpg")
+        if result != "" or result:
+            self.qr_label = tk.Label(center_frame, bg=controller.bg_color)
+            self.qr_label.pack(pady=(0, 30))
+            img = Image.open(result)
+            img = img.resize((400, 400))
+            imgtk = ImageTk.PhotoImage(img)
+
+            self.qr_label.configure(image=imgtk)
+            self.qr_label.image = imgtk
+        else:
+            write_error("ImageNotFound", "please try again")
+
+        title = tk.Label(center_frame, text=self.descPage,
+                         font=controller.heading_font,
+                         bg=controller.bg_color, fg=controller.primary_color,
+                         anchor="center", justify="center")
+        title.pack(pady=(0, 40))
+
+        restart_btn = RoundedButton(center_frame, text="Пройти тест ещё раз",
+                                    command=controller.restart_quiz,
+                                    width=400, height=80,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
+                                    font=controller.button_font)
+        restart_btn.pack(pady=20)
+
+        back_btn = RoundedButton(center_frame, text="Назад",
+                                  command=lambda: controller.show_frame("ResultPage"),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        back_btn.pack(pady=(0, 20))
+
+# ***********************************
+# *    Окно c отправкой через QR    *
+# ***********************************
+class QRPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=controller.bg_color)
+        self.controller = controller
+        self.descPage = "Введите "
+
+        if controller.logo_small is not None:
+            mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
+            mini_logo.place(x=40, y=40, anchor="nw")
+
+        if controller.logo_big is not None:
+            big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
+            big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
+
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        mini_logo.lift()
+
+        title = tk.Label(center_frame, text=self.descPage,
+                         font=controller.heading_font,
+                         bg=controller.bg_color, fg=controller.primary_color,
+                         anchor="center", justify="center")
+        title.pack(pady=(0, 40))
+
+        restart_btn = RoundedButton(center_frame, text="Пройти тест ещё раз",
+                                    command=controller.restart_quiz,
+                                    width=400, height=80,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
+                                    font=controller.button_font)
+        restart_btn.pack(pady=20)
+
+        back_btn = RoundedButton(center_frame, text="Назад",
+                                  command=lambda: controller.show_frame("ResultPage"),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        back_btn.pack(pady=(0, 20))

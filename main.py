@@ -65,12 +65,12 @@ class QuizApp(tk.Tk):
         self.container.columnconfigure(0, weight=1)                # Установка весов для каждого столбца (чтобы они занимали одинаковое пространство)
 
         self.frames = {}                                                 # Список всех контейнеров
-        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage):
+        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage, QRPage):
             frame = F(parent=self.container, controller=self)            # Создания класса с установленными выше параметрами
             self.frames[F.__name__] = frame                              # Создание связи "Имя: класс" для словаря
             frame.grid(row=0, column=0, sticky="nsew")                   # Размещение контейнера в окне
 
-        self.show_frame("StartPage")                                     # Отобразить контейнер с именем "StartPage"
+        self.show_frame("SendPage")                                     # Отобразить контейнер с именем "StartPage"
 
 
         # ******* Создание параметров для теста *******

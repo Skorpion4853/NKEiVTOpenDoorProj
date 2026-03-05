@@ -34,32 +34,39 @@ def send_photo_email(recipient_email, image_path):
             smtp.send_message(msg)
 
         write_info("200 ImageDelivered", f"Image {image_path} has been sent to {recipient_email}")
+        return True
     except smtplib.SMTPAuthenticationError as r:
         write_error("Authentication Error", r)
+        return False
     except TimeoutError:
         write_error("Timeout Error", "Unknow error, it's may be cuz ur email incorrect, or our mail didn't work")
-
+        return False
 
 def check_request(image_path, CHAT_ID, response):
     if response.status_code == 200:
         write_info("200 ImageDelivered", f"Image {image_path} has been sent to {CHAT_ID}")
+        return True
     elif response.status_code == 400:
         write_error("400 Bad Request", response)
+        return False
     elif response.status_code == 401:
         write_error("401 Unauthorized", "Token didn't correct")
+        return False
     elif response.status_code == 403:
         write_error("403 Forbidden", "bot was blocked by the user")
+        return False
     elif response.status_code == 404:
         write_error("404 Not Found", "image url not found or method work bad")
+        return False
     elif response.status_code == 429:
         write_error("429 Too Many Requests", "flood control")
-        return True
+        return False
     elif response.status_code in [500, 502, 503]:
         write_error("500 Internal Server Error", "server error")
-        return True
+        return False
     else:
         write_error("Unknow Error", "I rly don't know what is error!")
-    return False
+        return False
 
 
 def check_internet(host="8.8.8.8", port=53, timeout=3):
@@ -99,7 +106,7 @@ def send_img_to_user(image_path, CHAT_ID=MY_USER_ID, mode=0, email=sender_email)
                     files={"photo": f}
                 )
             corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
-            if mode == 0 or mode == 2:
+            if (mode == 0 or mode == 2) and corrupted:
                 data = response.json()
                 file_id = data["result"]["photo"][-1]["file_id"]
 
@@ -117,7 +124,11 @@ def send_img_to_user(image_path, CHAT_ID=MY_USER_ID, mode=0, email=sender_email)
                 file = f"source/qrcodes/qr_{int(time())}.jpg"
                 img.save(file)
                 write_info("QR Successfully Generated", f"QR {file[14:]} has been save to {file}")
+
+                return file
         else:
-            send_photo_email(email, image_path)
+            res = send_photo_email(email, image_path)
+            return res
     else:
         write_error("ConnectionError", "Device haven't internet connection")
+        return False
