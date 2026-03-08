@@ -49,6 +49,7 @@ class QuizApp(tk.Tk):
         self.loaded_photo_path = None                                   # Путь к загруженному фото
         self.load_images()                                              # Вызов функции что открывает изображения и сохраняет их в атрибуты
         self.generated_photo = None
+        self.qr = None
 
 
         # ******* Пути к ответам и вопросам *******
@@ -65,12 +66,12 @@ class QuizApp(tk.Tk):
         self.container.columnconfigure(0, weight=1)                # Установка весов для каждого столбца (чтобы они занимали одинаковое пространство)
 
         self.frames = {}                                                 # Список всех контейнеров
-        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage, QRPage):
+        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage, QRPage, TGPage, EmailPage):
             frame = F(parent=self.container, controller=self)            # Создания класса с установленными выше параметрами
             self.frames[F.__name__] = frame                              # Создание связи "Имя: класс" для словаря
             frame.grid(row=0, column=0, sticky="nsew")                   # Размещение контейнера в окне
 
-        self.show_frame("SendPage")                                     # Отобразить контейнер с именем "StartPage"
+        self.show_frame("StartPage")                                     # Отобразить контейнер с именем "StartPage"
 
 
         # ******* Создание параметров для теста *******
@@ -129,7 +130,6 @@ class QuizApp(tk.Tk):
     # *****************************
     def start_quiz(self):
         self.current_index = 0
-        #self.answers_score = {i: 0 for i in range(len(self.specialties))}
         self.update_question_page()
         self.show_frame("QuestionPage")
 
@@ -218,6 +218,7 @@ class QuizApp(tk.Tk):
         self.loaded_photo_path = None
         self.user_photo = None
         self.generated_photo = None
+        self.qr = None
         self.show_frame("StartPage")
 
 

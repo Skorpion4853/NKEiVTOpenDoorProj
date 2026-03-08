@@ -11,3 +11,6 @@ conf.py
 
 #Ignore model
 models
+
+#Ignore qr-codes
+source/image/generated
