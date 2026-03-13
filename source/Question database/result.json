@@ -1,25 +1,86 @@
 {
-  "result1": {
-    "spec_code": "09.02.2020",
-    "label": "Повар",
-    "text": "это искусство приготовления пищи, включающее подготовку продуктов, создание блюд по рецептам и творческое оформление,с соблюдением санитарных норм и стандартов качества в ресторанах, кафе и других заведениях. Повар отвечает за весь цикл: от закупки продуктов и разработки меню до контроля вкуса и внешнего вида готовых блюд. ",
-    "prompt": "photo of the exact same person, identical face, perfect likeness, wearing a professional chef uniform, white chef jacket, black apron, standing in an authentic Asian restaurant kitchen, stainless steel workspace, warm ambient lighting, realistic photography, preserved facial features, true identity, 85mm portrait lens, shallow depth of field, ultra-detailed, photorealistic, 4k",
-    "weight_code": {
-      "mn": 1,
-      "mx": 2
-    },
-    "code": ["a", "a"]
+  "result 1": {
+    "label": "IT-сфера",
+    "prof": "Возможные профессии:\n  •Программист\n  •Специалист по кибербезопасности\n  •Веб-разработчик\n  •Аналитик данных\n  •Тестировщик (QA)\n",
+    "description": "Специалисты IT создают программное обеспечение, разрабатывают веб-сайты, приложения и системы, которые управляют цифровым миром.",
+    "code": "it",
+    "prompt": "professional software developer working on multiple monitors with code, modern tech office, realistic lighting, focused programmer, cinematic, professional portrait, Flux model"
   },
-
-  "result2": {
-    "spec_code": "09.07.2005",
-    "label": "Программист",
-    "text": "это специалист, который пишет, тестирует и поддерживает программный код для создания программ, приложений, веб-сайтов и операционных систем, используя различные языки программирования для решения задач и автоматизации процессов; его работа включает разработку алгоритмов, отладку, настройку и документирование ПО. ",
-    "prompt": "Представь это человека в чёрной худи с надписью 'This is Fine' в руках с кружкой кофе, на фоне серверной комнаты, в реалистичном стиле с сохранением черт лица",
-    "weight_code": {
-      "mn": -1,
-      "mx": 0
-    },
-    "code": ["b", "c"]
+  "result 2": {
+    "label": "Медицина",
+    "prof": "Возможные профессии:\n  •Врач-терапев\n  •Медицинская сестра/брат\n  •Врач-хирург\n  •Фельдшер\n  •Стоматолог\n",
+    "description": "Медицинские работники диагностируют и лечат заболевания, помогают людям сохранять здоровье и спасают жизни.",
+    "code": "med",
+    "prompt": "professional doctor in hospital, medical uniform, modern clinic background, caring doctor with stethoscope, realistic medical environment, cinematic lighting, Flux model"
+  },
+  "result 3": {
+    "label": "Инженерия",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Инженеры проектируют сложные технические системы, машины и инфраструктуру, создавая технологии будущего.",
+    "code": "engineer",
+    "prompt": "professional engineer analyzing technical blueprint, industrial environment, engineering workspace with machines and plans, realistic portrait, cinematic lighting, Flux model"
+  },
+  "result 4": {
+    "label": "Педагогика",
+    "prof": "Возможные профессии:\n  •Учитель\n  •Педагог-психолог\n  •Воспитатель детского сада\n  •Педагог дополнительного образования\n  •Преподаватель колледжа/вуза\n",
+    "description": "Педагоги обучают и развивают людей, помогая им получать знания и навыки для будущей жизни.",
+    "code": "edu",
+    "prompt": "professional teacher in classroom, explaining lesson to students, warm educational environment, books and board in background, realistic portrait, cinematic lighting, Flux model"
+  },
+  "result 5": {
+    "label": "Творчество и дизайн",
+    "prof": "Возможные профессии:\n  •Графический дизайнер\n  •Веб-дизайнер\n  •Арт-директор\n  •Фотограф\n  •Видеомонтажер\n",
+    "description": "Дизайнеры и художники создают визуальные решения, формируют стиль и эстетику окружающего мира.",
+    "code": "art",
+    "prompt": "creative designer working in modern studio, drawing tablet, colorful workspace, artistic atmosphere, professional creative portrait, cinematic lighting, Flux model"
+  },
+  "result 6": {
+    "label": "Транспорт и логистика",
+    "prof": "Возможные профессии:\n  •Логист\n  •Водитель общественного транспорта\n  •Машинист электропоезда\n  •Дальнобойщик\n  •Специалист по ВЭД\n",
+    "description": "Специалисты по транспорту и логистике организуют перевозки людей и товаров, управляя сложными цепочками поставок.",
+    "code": "transport",
+    "prompt": "logistics specialist managing global transport routes, warehouse and digital logistics screens, modern supply chain environment, professional portrait, cinematic lighting, Flux model"
+  },
+  "result 7": {
+    "label": "Наука и исследования",
+    "prof": "Возможные профессии:\n  •Биотехнолог\n  •Химик-технолог\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Учёные и исследователи изучают мир, проводят эксперименты и открывают новые знания.",
+    "code": "science",
+    "prompt": "scientist working in high tech laboratory, research equipment, microscope and digital screens, realistic scientist portrait, cinematic lighting, Flux model"
+  },
+  "result 8": {
+    "label": "Строительство",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Строители и архитекторы создают здания, инфраструктуру и формируют современную городскую среду.",
+    "code": "build",
+    "prompt": "construction engineer at building site, helmet and safety vest, modern architecture background, professional construction portrait, cinematic lighting, Flux model"
+  },
+  "result 9": {
+    "label": "Производство",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Специалисты производства управляют промышленными процессами и создают товары, которыми пользуются люди.",
+    "code": "prod",
+    "prompt": "industrial production specialist in modern factory, machines and assembly line, professional worker portrait, cinematic lighting, Flux model"
+  },
+  "result 10": {
+    "label": "Социальная сфера",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Социальные работники помогают людям в трудных жизненных ситуациях и поддерживают общество.",
+    "code": "social",
+    "prompt": "social worker helping people in community center, warm human interaction, caring professional portrait, cinematic lighting, Flux model"
+  },
+  "result 11": {
+    "label": "Бизнес и управление",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Менеджеры и предприниматели управляют компаниями, создают стратегии развития и организуют работу команд.",
+    "code": "money",
+    "prompt": "business manager leading team meeting in modern office, confident professional leader, corporate environment, cinematic lighting, Flux model"
+  },
+  "result 12": {
+    "label": "Сервис и туризм",
+    "prof": "Возможные профессии:\n  •Инженер-конструктор\n  •Инженер-электрик\n  •Инженер-проектировщик\n  •Инженер-технолог\n  •Горный инженер\n",
+    "description": "Специалисты сервиса и туризма организуют отдых, путешествия и качественное обслуживание клиентов.",
+    "code": "service",
+    "prompt": "tourism professional helping travelers in modern travel office, friendly service specialist portrait, realistic lighting, flux model"
   }
 }

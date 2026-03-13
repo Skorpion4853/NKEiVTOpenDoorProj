@@ -7,6 +7,17 @@ path_mini_logo = 'source/image/system/Logo+name.png'
 path_big_logo = 'source/image/system/Logo.png'
 
 
+def concat(dct1, dct2):
+    dct3 = {}
+    for key in dct2 | dct1:
+        try:
+            dct3[key] = dct1[key] + dct2[key]
+        except KeyError:
+            try:
+                dct3[key] = dct2[key]
+            except KeyError:
+                dct3[key] = dct1[key]
+    return dct3
 
 
 
@@ -75,8 +86,21 @@ class QuizApp(tk.Tk):
 
         # ******* Создание параметров для теста *******
         self.current_index = 0
-        self.answers_score = 0
-        self.code = []
+        self.matrix = {
+            "tech": 0,
+            "data": 0,
+            "ideas": 0,
+            "money": 0,
+            "science": 0,
+            "people": 0,
+            "impact": 0,
+            "art": 0,
+            "creativity": 0,
+            "things": 0,
+            "stability": 0,
+            "business": 0,
+            "social": 0
+        }
         self.questions = json.load(open(self.questions_path, encoding='utf-8'))
         self.question_names = list(self.questions.keys())
         self.results = json.load(open(self.result_path, encoding='utf-8'))
@@ -151,10 +175,8 @@ class QuizApp(tk.Tk):
     def answer_selected(self, option_text):
         current_question = self.questions[self.question_names[self.current_index]]
         option_index = current_question["options"].index(option_text)
-        #specialty_index = current_question["scores"][option_index]
 
-        self.answers_score += current_question["weights"][option_index]
-        self.code.append(current_question["codes"][option_index])
+        self.matrix = concat(self.matrix, current_question["matrix"][str(option_index)])
 
         self.current_index += 1
         if self.current_index < len(self.questions):                            #Если индекс меньше количества вопросов, обновляем тест
@@ -172,10 +194,7 @@ class QuizApp(tk.Tk):
         top_specialties = []                                                     #Переменная что хранит в себе всё специальности что подходят
         flag = True
         for i in self.results:
-            if self.results[i]["code"] == self.code:
-                top_specialties.append(self.results[i])
-                flag = False
-            elif self.answers_score in range(self.results[i]["weight_code"]["mn"], self.results[i]["weight_code"]["mx"]+1):
+            if self.results[i]["matrix"] == self.matrix:
                 top_specialties.append(self.results[i])
                 flag = False
         if flag:
@@ -213,7 +232,21 @@ class QuizApp(tk.Tk):
     # *********************************
     def restart_quiz(self):
         self.current_index = 0
-        self.answers_score = 0
+        self.matrix = {
+            "tech": 0,
+            "data": 0,
+            "ideas": 0,
+            "money": 0,
+            "science": 0,
+            "people": 0,
+            "impact": 0,
+            "art": 0,
+            "creativity": 0,
+            "things": 0,
+            "stability": 0,
+            "business": 0,
+            "social": 0
+        }
         self.result_specialty = None
         self.loaded_photo_path = None
         self.user_photo = None
