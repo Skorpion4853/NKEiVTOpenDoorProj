@@ -7,6 +7,7 @@ from os import makedirs, path
 import smtplib
 from email.message import EmailMessage
 import mimetypes
+from tkinter.messagebox import showerror, showwarning, showinfo
 
 def send_photo_email(recipient_email, image_path):
     try:
@@ -37,9 +38,11 @@ def send_photo_email(recipient_email, image_path):
         return True
     except smtplib.SMTPAuthenticationError as r:
         write_error("Authentication Error", r)
+        showerror("Authentication Error", r)
         return False
     except TimeoutError:
         write_error("Timeout Error", "Unknow error, it's may be cuz ur email incorrect, or our mail didn't work")
+        showerror("Timeout Error", "Unknow error, it's may be cuz ur email incorrect, or our mail didn't work")
         return False
 
 def check_request(image_path, CHAT_ID, response):
@@ -48,24 +51,31 @@ def check_request(image_path, CHAT_ID, response):
         return True
     elif response.status_code == 400:
         write_error("400 Bad Request", response)
+        showerror("400 Bad Request", response)
         return False
     elif response.status_code == 401:
         write_error("401 Unauthorized", "Token didn't correct")
+        showerror("401 Unauthorized", "Token didn't correct")
         return False
     elif response.status_code == 403:
         write_error("403 Forbidden", "bot was blocked by the user")
+        showerror("403 Forbidden", "bot was blocked by the user")
         return False
     elif response.status_code == 404:
         write_error("404 Not Found", "image url not found or method work bad")
+        showerror("404 Not Found", "image url not found or method work bad")
         return False
     elif response.status_code == 429:
         write_error("429 Too Many Requests", "flood control")
+        showerror("429 Too Many Requests", "flood control")
         return False
     elif response.status_code in [500, 502, 503]:
         write_error("500 Internal Server Error", "server error")
+        showerror("500 Internal Server Error", "server error")
         return False
     else:
         write_error("Unknow Error", "I rly don't know what is error!")
+        showerror("Unknow Error", "I rly don't know what is error!")
         return False
 
 
@@ -77,6 +87,7 @@ def check_internet(host="8.8.8.8", port=53, timeout=3):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
     except OSError:
+        showerror("Network Error", "Check ur internet connection")
         return False
 
 
@@ -88,47 +99,65 @@ def send_img_to_user(image_path, CHAT_ID=MY_USER_ID, mode=0, email=sender_email)
     2: tg + or
     3: Почта
     """
-    if check_internet():
-        if mode != 3:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+    if image_path is not None:
+        if check_internet():
+            if mode != 3:
+                if mode == 1:
+                    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
-            if mode != 0:
-                updates = requests.get(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
-                ).json()
-                i = len(updates["result"])
-                CHAT_ID = updates["result"][i-1]['message']['chat']['id']
+                    if mode != 0:
+                        updates = requests.get(
+                            f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
+                        ).json()
+                        i = len(updates["result"])
+                        CHAT_ID = updates["result"][i-1]['message']['chat']['id']
 
-            with open(image_path, "rb") as f:
-                response = requests.post(
-                    url,
-                    data={"chat_id": CHAT_ID},
-                    files={"photo": f}
-                )
-            corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
-            if (mode == 0 or mode == 2) and corrupted:
-                data = response.json()
-                file_id = data["result"]["photo"][-1]["file_id"]
+                    with open(image_path, "rb") as f:
+                        response = requests.post(
+                            url,
+                            data={"chat_id": CHAT_ID},
+                            files={"photo": f}
+                        )
 
-                # получаем file_path
-                r = requests.get(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
-                    params={"file_id": file_id}
-                ).json()
+                    corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
+                    showinfo("Image sended!", "You can close this window, and start test again")
+                elif mode == 0 or mode == 2:
+                    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+                    with open(image_path, "rb") as f:
+                        response = requests.post(
+                            url,
+                            data={"chat_id": CHAT_ID},
+                            files={"photo": f}
+                        )
 
-                file_path = r["result"]["file_path"]
-                file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+                    corrupted = check_request(image_path=image_path, CHAT_ID=CHAT_ID, response=response)
+                    data = response.json()
+                    file_id = data["result"]["photo"][-1]["file_id"]
 
-                img = qrcode.make(file_url)
-                makedirs("source/qrcodes", exist_ok=True)
-                file = f"source/qrcodes/qr_{int(time())}.jpg"
-                img.save(file)
-                write_info("QR Successfully Generated", f"QR {file[14:]} has been save to {file}")
+                    # получаем file_path
+                    r = requests.get(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
+                        params={"file_id": file_id}
+                    ).json()
 
-                return file
+                    file_path = r["result"]["file_path"]
+                    file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+
+                    img = qrcode.make(file_url)
+                    makedirs("source/qrcodes", exist_ok=True)
+                    file = f"source/qrcodes/qr_{int(time())}.jpg"
+                    img.save(file)
+                    write_info("QR Successfully Generated", f"QR {file[14:]} has been save to {file}")
+                    return file
+            else:
+                res = send_photo_email(email, image_path)
+                showinfo("Image sended!", "You can close this window, and start test again")
+                return res
+
         else:
-            res = send_photo_email(email, image_path)
-            return res
+            write_error("ConnectionError", "Device haven't internet connection")
+            showerror("ConnectionError", "Device haven't internet connection")
+            return False
     else:
-        write_error("ConnectionError", "Device haven't internet connection")
+        write_error("ImageNotFound", "Image not found")
         return False

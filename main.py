@@ -2,9 +2,19 @@ import json
 from Frames import *
 import tkinter.font as tkfont
 #******* Глобальные переменные (пути к файлам) *******
+import sys
+import os
 
-path_mini_logo = 'source/image/system/Logo+name.png'
-path_big_logo = 'source/image/system/Logo.png'
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+path_mini_logo = resource_path('source/image/system/Logo+name.png')
+path_big_logo = resource_path('source/image/system/Logo.png')
 
 
 def concat(dct1, dct2):
@@ -19,6 +29,14 @@ def concat(dct1, dct2):
                 dct3[key] = dct1[key]
     return dct3
 
+def argmax(dct):
+    mx = -1111
+    keymx = ""
+    for key, item in dct.items():
+        if item > mx:
+            mx = item
+            keymx = key
+    return keymx
 
 
 #*************************
@@ -60,12 +78,13 @@ class QuizApp(tk.Tk):
         self.loaded_photo_path = None                                   # Путь к загруженному фото
         self.load_images()                                              # Вызов функции что открывает изображения и сохраняет их в атрибуты
         self.generated_photo = None
+        self.qr = None
 
 
         # ******* Пути к ответам и вопросам *******
 
-        self.result_path = "source/Question database/result.json"
-        self.questions_path = "source/Question database/questions.json"
+        self.result_path = resource_path("source/Question database/result.json")
+        self.questions_path = resource_path("source/Question database/questions.json")
 
 
         # ******* Создание контейнеров *******
@@ -76,29 +95,28 @@ class QuizApp(tk.Tk):
         self.container.columnconfigure(0, weight=1)                # Установка весов для каждого столбца (чтобы они занимали одинаковое пространство)
 
         self.frames = {}                                                 # Список всех контейнеров
-        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage, QRPage):
+        for F in (StartPage, QuestionPage, ResultPage, CameraPage, SendPage, QRPage, TGPage, EmailPage):
             frame = F(parent=self.container, controller=self)            # Создания класса с установленными выше параметрами
             self.frames[F.__name__] = frame                              # Создание связи "Имя: класс" для словаря
             frame.grid(row=0, column=0, sticky="nsew")                   # Размещение контейнера в окне
 
-        self.show_frame("SendPage")                                     # Отобразить контейнер с именем "StartPage"
+        self.show_frame("StartPage")                                     # Отобразить контейнер с именем "StartPage"
 
 
         # ******* Создание параметров для теста *******
         self.current_index = 0
         self.matrix = {
-            "tech": 0,
-            "data": 0,
-            "ideas": 0,
-            "money": 0,
+            "it": 0,
             "science": 0,
-            "people": 0,
-            "impact": 0,
+            "transport": 0,
+            "money": 0,
+            "build": 0,
+            "med": 0,
+            "engineer": 0,
             "art": 0,
-            "creativity": 0,
-            "things": 0,
-            "stability": 0,
-            "business": 0,
+            "service": 0,
+            "edu": 0,
+            "prod": 0,
             "social": 0
         }
         self.questions = json.load(open(self.questions_path, encoding='utf-8'))
@@ -153,7 +171,6 @@ class QuizApp(tk.Tk):
     # *****************************
     def start_quiz(self):
         self.current_index = 0
-        #self.answers_score = {i: 0 for i in range(len(self.specialties))}
         self.update_question_page()
         self.show_frame("QuestionPage")
 
@@ -194,7 +211,7 @@ class QuizApp(tk.Tk):
         top_specialties = []                                                     #Переменная что хранит в себе всё специальности что подходят
         flag = True
         for i in self.results:
-            if self.results[i]["matrix"] == self.matrix:
+            if self.results[i]["code"] == argmax(self.matrix):
                 top_specialties.append(self.results[i])
                 flag = False
         if flag:
@@ -212,7 +229,7 @@ class QuizApp(tk.Tk):
     def get_result_text(self):
         if self.result_specialty is not None:
             spec = self.result_specialty
-            return f"Ваша специальность:\n{spec['spec_code']}\n{spec['label']}\n\n{spec['text']}"
+            return f"Ваша сфера :\n{spec['label']}\n\n{spec['prof']}\n{spec['description']}"
         return "Не удалось определить специальность"
 
 
@@ -233,24 +250,24 @@ class QuizApp(tk.Tk):
     def restart_quiz(self):
         self.current_index = 0
         self.matrix = {
-            "tech": 0,
-            "data": 0,
-            "ideas": 0,
-            "money": 0,
+            "it": 0,
             "science": 0,
-            "people": 0,
-            "impact": 0,
+            "transport": 0,
+            "money": 0,
+            "build": 0,
+            "med": 0,
+            "engineer": 0,
             "art": 0,
-            "creativity": 0,
-            "things": 0,
-            "stability": 0,
-            "business": 0,
+            "service": 0,
+            "edu": 0,
+            "prod": 0,
             "social": 0
         }
         self.result_specialty = None
         self.loaded_photo_path = None
         self.user_photo = None
         self.generated_photo = None
+        self.qr = None
         self.show_frame("StartPage")
 
 

@@ -3,7 +3,16 @@ from diffusers import Flux2KleinPipeline
 from PIL import Image
 import os
 import time
+from huggingface_hub import snapshot_download, utils
+from diffusers.utils import logging
+logging.disable_progress_bar()
 
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+os.environ["HF_HUB_DISABLE_XET"] = "1"
+
+
+utils.disable_progress_bars()
 os.makedirs("models", exist_ok=True)
 MODEL_PATH = "models/flux2-klein-4b"
 
@@ -49,8 +58,8 @@ def generate_image(init_image_path, prompt):
         num_inference_steps=4,
         generator=torch.Generator(device=device).manual_seed(0)
     ).images[0]
-    os.makedirs("source/image/generated", exist_ok=True)
-    out_path = f"source/image/generated/gen_{int(time.time())}.png"
+    os.makedirs("source/generated", exist_ok=True)
+    out_path = f"source/generated/gen_{int(time.time())}.png"
     result.save(out_path)
 
     return out_path

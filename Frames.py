@@ -122,7 +122,7 @@ class ResultPage(tk.Frame):
 
         # ===== Основной контейнер как в BackEnd =====
         main_container = tk.Frame(self, bg=controller.bg_color)
-        main_container.place(relx=0.56, rely=0.5, anchor="center", width=1000, height=800)
+        main_container.place(relx=0.5, rely=0.5, anchor="center", width=1000, height=800)
 
         canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
         scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
@@ -227,7 +227,7 @@ class CameraPage(tk.Frame):
             big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
 
         main_container = tk.Frame(self, bg=controller.bg_color)
-        main_container.place(relx=0.6, rely=0.5, anchor="center", width=1000, height=800)
+        main_container.place(relx=0.5, rely=0.5, anchor="center", width=1000, height=800)
 
         canvas = tk.Canvas(main_container, bg=controller.bg_color, highlightthickness=0)
         scrollbar = tk.Scrollbar(main_container, orient="vertical", command=canvas.yview)
@@ -344,6 +344,8 @@ class CameraPage(tk.Frame):
 
         out_path = generate_image(controller.loaded_photo_path, prompt)
         controller.generated_photo = out_path   # сохраняем путь
+        controller.qr = send_img_to_user(out_path)
+
 
     def take_photo(self):
         if not self.cap:
@@ -361,6 +363,7 @@ class CameraPage(tk.Frame):
         self.stop_camera()
         self.make_generation()
         self.controller.frames["ResultPage"].update_result()
+        self.controller.frames["QRPage"].update_result()
         self.controller.show_frame("ResultPage")
 
     def go_back(self):
@@ -409,14 +412,14 @@ class SendPage(tk.Frame):
                                   font=controller.button_font)
         qr_btn.pack(pady=(0, 20))
         tg_btn = RoundedButton(center_frame, text="В телеграмм",
-                                  command=lambda: controller.show_frame(""),
+                                  command=lambda: controller.show_frame("TGPage"),
                                   width=400, height=80,
                                   bg_color=controller.primary_color,
                                   hover_color=controller.second_color,
                                   font=controller.button_font)
         tg_btn.pack(pady=(0, 20))
         email_btn = RoundedButton(center_frame, text="На почту",
-                                  command=lambda: controller.show_frame(""),
+                                  command=lambda: controller.show_frame("EmailPage"),
                                   width=400, height=80,
                                   bg_color=controller.primary_color,
                                   hover_color=controller.second_color,
@@ -437,7 +440,7 @@ class QRPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg=controller.bg_color)
         self.controller = controller
-        self.descPage = "От сканируйте QR чтобы получить фото"
+        self.descPage = "Отсканируйте QR чтобы получить фото"
 
         if controller.logo_small is not None:
             mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
@@ -452,18 +455,8 @@ class QRPage(tk.Frame):
 
         mini_logo.lift()
 
-        result = send_img_to_user("source/user_photos/1564586532121120879.jpg")
-        if result != "" or result:
-            self.qr_label = tk.Label(center_frame, bg=controller.bg_color)
-            self.qr_label.pack(pady=(0, 30))
-            img = Image.open(result)
-            img = img.resize((400, 400))
-            imgtk = ImageTk.PhotoImage(img)
-
-            self.qr_label.configure(image=imgtk)
-            self.qr_label.image = imgtk
-        else:
-            write_error("ImageNotFound", "please try again")
+        self.qr_label = tk.Label(center_frame, bg=controller.bg_color)
+        self.qr_label.pack(pady=(0, 30))
 
         title = tk.Label(center_frame, text=self.descPage,
                          font=controller.heading_font,
@@ -477,24 +470,38 @@ class QRPage(tk.Frame):
                                     bg_color=controller.primary_color,
                                     hover_color=controller.second_color,
                                     font=controller.button_font)
-        restart_btn.pack(pady=20)
+        restart_btn.pack(pady=(0, 20))
 
         back_btn = RoundedButton(center_frame, text="Назад",
-                                  command=lambda: controller.show_frame("ResultPage"),
+                                  command=lambda: controller.show_frame("SendPage"),
                                   width=400, height=80,
                                   bg_color=controller.primary_color,
                                   hover_color=controller.second_color,
                                   font=controller.button_font)
         back_btn.pack(pady=(0, 20))
 
+    def update_result(self):
+        # Если есть сгенерированное фото — показать
+        if getattr(self.controller, "generated_photo", None):
+            try:
+
+                img = Image.open(self.controller.qr)
+                img = img.resize((400, 400))
+                imgtk = ImageTk.PhotoImage(img)
+
+                self.qr_label.configure(image=imgtk)
+                self.qr_label.image = imgtk
+            except Exception as e:
+                write_error("ResultImageError", str(e))
 # ***********************************
-# *    Окно c отправкой через QR    *
+# *    Окно c отправкой через TG    *
 # ***********************************
-class QRPage(tk.Frame):
+class TGPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg=controller.bg_color)
         self.controller = controller
-        self.descPage = "Введите "
+        self.titletext = "Отправка фото по TG"
+        self.desctext = "Для отправки фото в тг, отправьте сообщение /start \nнашему боту @NKEiVTProforBot после чего нажмите кнопку отправить"
 
         if controller.logo_small is not None:
             mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
@@ -509,11 +516,25 @@ class QRPage(tk.Frame):
 
         mini_logo.lift()
 
-        title = tk.Label(center_frame, text=self.descPage,
+        title = tk.Label(center_frame, text=self.titletext,
                          font=controller.heading_font,
                          bg=controller.bg_color, fg=controller.primary_color,
                          anchor="center", justify="center")
         title.pack(pady=(0, 40))
+
+        desc = tk.Label(center_frame, text=self.desctext,
+                         font=controller.main_font,
+                         bg=controller.bg_color, fg="#000",
+                         anchor="center", justify="center")
+        desc.pack(pady=(0, 40))
+
+        send_btn = RoundedButton(center_frame, text="Отправить",
+                                 command=lambda: send_img_to_user(self.controller.generated_photo, mode=1),
+                                 width=400, height=80,
+                                 bg_color=controller.primary_color,
+                                 hover_color=controller.second_color,
+                                 font=controller.button_font)
+        send_btn.pack(pady=(0, 20))
 
         restart_btn = RoundedButton(center_frame, text="Пройти тест ещё раз",
                                     command=controller.restart_quiz,
@@ -521,10 +542,70 @@ class QRPage(tk.Frame):
                                     bg_color=controller.primary_color,
                                     hover_color=controller.second_color,
                                     font=controller.button_font)
-        restart_btn.pack(pady=20)
+        restart_btn.pack(pady=(0, 20))
 
         back_btn = RoundedButton(center_frame, text="Назад",
-                                  command=lambda: controller.show_frame("ResultPage"),
+                                  command=lambda: controller.show_frame("SendPage"),
+                                  width=400, height=80,
+                                  bg_color=controller.primary_color,
+                                  hover_color=controller.second_color,
+                                  font=controller.button_font)
+        back_btn.pack(pady=(0, 20))
+
+# **************************************
+# *    Окно c отправкой через email    *
+# **************************************
+class EmailPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg=controller.bg_color)
+        self.controller = controller
+        self.titletext = "Введите Email для отпраки фото"
+
+        if controller.logo_small is not None:
+            mini_logo = tk.Label(self, image=controller.logo_small, bg=controller.bg_color)
+            mini_logo.place(x=40, y=40, anchor="nw")
+
+        if controller.logo_big is not None:
+            big_logo = tk.Label(self, image=controller.logo_big, bg=controller.bg_color)
+            big_logo.place(relx=1.0, rely=1.0, anchor="se", x=250, y=40)
+
+        center_frame = tk.Frame(self, bg=controller.bg_color)
+        center_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        mini_logo.lift()
+
+        title = tk.Label(center_frame, text=self.titletext,
+                         font=controller.heading_font,
+                         bg=controller.bg_color, fg=controller.primary_color,
+                         anchor="center", justify="center")
+        title.pack(pady=(0, 40))
+
+        entry = tk.Entry(center_frame,
+                         font=controller.main_font,
+                         bg="#f1f1f1",
+                         fg="#000",
+                         width = 40,
+                         justify="center")
+        entry.pack(pady=(0, 40))
+
+        send_btn = RoundedButton(center_frame, text="Отправить",
+                                 command=lambda: send_img_to_user(image_path=self.controller.generated_photo, mode=3, email=entry.get()),
+                                 width=400, height=80,
+                                 bg_color=controller.primary_color,
+                                 hover_color=controller.second_color,
+                                 font=controller.button_font)
+        send_btn.pack(pady=(0, 20))
+
+        restart_btn = RoundedButton(center_frame, text="Пройти тест ещё раз",
+                                    command=controller.restart_quiz,
+                                    width=400, height=80,
+                                    bg_color=controller.primary_color,
+                                    hover_color=controller.second_color,
+                                    font=controller.button_font)
+        restart_btn.pack(pady=(0,20))
+
+        back_btn = RoundedButton(center_frame, text="Назад",
+                                  command=lambda: controller.show_frame("SendPage"),
                                   width=400, height=80,
                                   bg_color=controller.primary_color,
                                   hover_color=controller.second_color,
